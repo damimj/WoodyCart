@@ -1,0 +1,75 @@
+.wrapper { position: relative; overflow: hidden; }
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--cream);
+  transition: transform 0.2s ease, background 0.15s;
+  position: relative;
+  z-index: 1;
+  min-height: 56px;
+}
+.row:active { background: var(--cream-dark); }
+.swiped { transform: translateX(-112px); }
+.checked { opacity: 0.55; }
+
+.checkbox { flex-shrink: 0; padding: 2px; }
+.check {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  background: white;
+}
+.checkActive {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+  animation: checkPop 0.25s ease;
+}
+
+.thumbnail {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  cursor: pointer;
+}
+.name {
+  font-size: 16px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.checked .name { text-decoration: line-through; color: var(--ink-muted); }
+.qty { font-size: 13px; color: var(--ink-muted); }
+.note { font-size: 12px; color: var(--ink-muted); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Swipe actions */
+.swipeActions {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  display: flex;
+  z-index: 0;
+}
+.editAction, .deleteAction {
+  width: 56px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+}
+.editAction { background: var(--blue); }
+.deleteAction { background: var(--accent); }

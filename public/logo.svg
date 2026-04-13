@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420">
+  <defs>
+    <clipPath id="cartClip">
+      <rect x="90" y="210" width="240" height="140" rx="6"/>
+    </clipPath>
+  </defs>
+
+  <rect width="420" height="420" fill="#fdf6ec" rx="84"/>
+
+  <!-- Cart body -->
+  <rect x="88" y="208" width="244" height="144" rx="10" fill="#e8e0d0" stroke="#b5a898" stroke-width="2.5"/>
+  <rect x="88" y="208" width="244" height="14" rx="10" fill="#d4c9b8"/>
+  <rect x="88" y="216" width="244" height="6" fill="#d4c9b8"/>
+
+  <!-- Grid horizontals -->
+  <line x1="92" y1="240" x2="328" y2="240" stroke="#b5a898" stroke-width="1.5"/>
+  <line x1="92" y1="268" x2="328" y2="268" stroke="#b5a898" stroke-width="1.5"/>
+  <line x1="92" y1="296" x2="328" y2="296" stroke="#b5a898" stroke-width="1.5"/>
+  <line x1="92" y1="324" x2="328" y2="324" stroke="#b5a898" stroke-width="1.5"/>
+
+  <!-- Grid verticals -->
+  <line x1="147" y1="212" x2="147" y2="348" stroke="#b5a898" stroke-width="1.5"/>
+  <line x1="206" y1="212" x2="206" y2="348" stroke="#b5a898" stroke-width="1.5"/>
+  <line x1="265" y1="212" x2="265" y2="348" stroke="#b5a898" stroke-width="1.5"/>
+
+  <!-- Handle -->
+  <rect x="60" y="193" width="300" height="20" rx="10" fill="#8a7a6a" stroke="#6e6055" stroke-width="1.5"/>
+  <rect x="76" y="172" width="14" height="36" rx="5" fill="#8a7a6a" stroke="#6e6055" stroke-width="1.5"/>
+  <rect x="330" y="172" width="14" height="36" rx="5" fill="#8a7a6a" stroke="#6e6055" stroke-width="1.5"/>
+
+  <!-- Front trapezoid -->
+  <polygon points="88,352 65,390 355,390 332,352" fill="#d4c9b8" stroke="#b5a898" stroke-width="2"/>
+
+  <!-- Axle -->
+  <rect x="72" y="388" width="276" height="8" rx="4" fill="#8a7a6a"/>
+
+  <!-- Left wheel -->
+  <circle cx="115" cy="406" r="18" fill="#5a4e44" stroke="#3d3028" stroke-width="2.5"/>
+  <circle cx="115" cy="406" r="10" fill="#8a7a6a"/>
+  <circle cx="115" cy="406" r="4" fill="#3d3028"/>
+
+  <!-- Right wheel -->
+  <circle cx="305" cy="406" r="18" fill="#5a4e44" stroke="#3d3028" stroke-width="2.5"/>
+  <circle cx="305" cy="406" r="10" fill="#8a7a6a"/>
+  <circle cx="305" cy="406" r="4" fill="#3d3028"/>
+
+  <!-- Cat body clipped -->
+  <g clip-path="url(#cartClip)">
+    <ellipse cx="210" cy="330" rx="72" ry="62" fill="#e87d2a"/>
+    <ellipse cx="210" cy="340" rx="42" ry="38" fill="#f5c490"/>
+    <path d="M178 295 Q210 285 242 295" stroke="#c4601a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M172 315 Q210 305 248 315" stroke="#c4601a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="148" cy="348" rx="22" ry="14" fill="#e87d2a" stroke="#c4601a" stroke-width="1.5"/>
+    <ellipse cx="148" cy="348" rx="14" ry="9" fill="#f5c490"/>
+    <ellipse cx="272" cy="348" rx="22" ry="14" fill="#e87d2a" stroke="#c4601a" stroke-width="1.5"/>
+    <ellipse cx="272" cy="348" rx="14" ry="9" fill="#f5c490"/>
+  </g>
+
+  <!-- Cat head -->
+  <ellipse cx="210" cy="200" rx="74" ry="68" fill="#e87d2a"/>
+
+  <!-- Ears -->
+  <polygon points="148,152 130,109 180,148" fill="#e87d2a"/>
+  <polygon points="151,148 137,119 176,146" fill="#f09060"/>
+  <polygon points="272,152 290,109 240,148" fill="#e87d2a"/>
+  <polygon points="269,148 283,119 244,146" fill="#f09060"/>
+
+  <!-- Head stripes -->
+  <path d="M180 155 Q210 148 240 155" stroke="#c4601a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M174 172 Q210 164 246 172" stroke="#c4601a" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <!-- Muzzle -->
+  <ellipse cx="210" cy="228" rx="32" ry="24" fill="#f5c490"/>
+
+  <!-- Left eye -->
+  <ellipse cx="184" cy="200" rx="16" ry="18" fill="white"/>
+  <ellipse cx="184" cy="202" rx="7" ry="14" fill="#2a1a0a"/>
+  <circle cx="188" cy="196" r="4" fill="white"/>
+
+  <!-- Right eye -->
+  <ellipse cx="236" cy="200" rx="16" ry="18" fill="white"/>
+  <ellipse cx="236" cy="202" rx="7" ry="14" fill="#2a1a0a"/>
+  <circle cx="240" cy="196" r="4" fill="white"/>
+
+  <!-- Nose & mouth -->
+  <polygon points="210,218 204,224 216,224" fill="#e85a7a"/>
+  <path d="M204,225 Q210,232 216,225" stroke="#c4601a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+  <!-- Whiskers -->
+  <line x1="178" y1="222" x2="138" y2="215" stroke="#6e5040" stroke-width="1.5"/>
+  <line x1="178" y1="228" x2="136" y2="228" stroke="#6e5040" stroke-width="1.5"/>
+  <line x1="178" y1="234" x2="140" y2="240" stroke="#6e5040" stroke-width="1.5"/>
+  <line x1="242" y1="222" x2="282" y2="215" stroke="#6e5040" stroke-width="1.5"/>
+  <line x1="242" y1="228" x2="284" y2="228" stroke="#6e5040" stroke-width="1.5"/>
+  <line x1="242" y1="234" x2="280" y2="240" stroke="#6e5040" stroke-width="1.5"/>
+
+  <!-- Tail -->
+  <path d="M332 340 Q390 310 380 258 Q372 223 340 238" stroke="#e87d2a" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M332 340 Q390 310 380 258 Q372 223 340 238" stroke="#c4601a" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="6 10"/>
+  <ellipse cx="336" cy="240" rx="14" ry="10" fill="#e87d2a" transform="rotate(-20,336,240)"/>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="8" fill="#e87d2a"/>
+  <!-- Cart basket -->
+  <rect x="6" y="16" width="20" height="11" rx="2" fill="#fdf6ec" opacity="0.9"/>
+  <!-- Handle -->
+  <rect x="4" y="14" width="24" height="3" rx="1.5" fill="#8a7a6a"/>
+  <!-- Wheels -->
+  <circle cx="10" cy="29" r="2.5" fill="#5a4e44"/>
+  <circle cx="22" cy="29" r="2.5" fill="#5a4e44"/>
+  <!-- Cat head -->
+  <ellipse cx="16" cy="13" rx="7" ry="6" fill="#e87d2a"/>
+  <!-- Ears -->
+  <polygon points="10,9 8,5 13,8" fill="#e87d2a"/>
+  <polygon points="22,9 24,5 19,8" fill="#e87d2a"/>
+  <!-- Eyes -->
+  <ellipse cx="13" cy="12" rx="2" ry="2.5" fill="white"/>
+  <ellipse cx="13" cy="12.5" rx="1" ry="2" fill="#2a1a0a"/>
+  <ellipse cx="19" cy="12" rx="2" ry="2.5" fill="white"/>
+  <ellipse cx="19" cy="12.5" rx="1" ry="2" fill="#2a1a0a"/>
+  <!-- Nose -->
+  <polygon points="16,15 15,16.5 17,16.5" fill="#e85a7a"/>
+</svg>
