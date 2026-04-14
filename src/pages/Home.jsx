@@ -97,7 +97,7 @@ export default function Home() {
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <div className={styles.logoWrap}>
-            <img src="/favicon.svg" alt="" className={styles.logoIcon} aria-hidden="true" />
+            <img src="/logo_new.png" alt="" className={styles.logoIcon} aria-hidden="true" />
             <h1 className={styles.logo}>WoodyCart</h1>
           </div>
           <button className={styles.addBtn} onClick={() => setCreating(true)} aria-label="Nueva lista">

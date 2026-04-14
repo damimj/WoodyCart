@@ -17,7 +17,7 @@
   justify-content: space-between;
 }
 .logoWrap { display: flex; align-items: center; gap: 10px; }
-.logoIcon { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); }
+.logoIcon { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
 .logo {
   font-family: var(--font-display);
   font-size: 32px;
