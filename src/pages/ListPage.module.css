@@ -33,15 +33,17 @@
   margin: 0 auto;
   width: 100%;
 }
-.backBtn2 {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--ink);
+.logoBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  transition: background 0.15s;
+  border-radius: 8px;
+  padding: 2px;
+  transition: opacity 0.15s;
 }
-.backBtn2:hover { background: var(--cream-dark); }
+.logoBtn:hover { opacity: 0.75; }
+.headerLogo { width: 32px; height: 32px; border-radius: 6px; display: block; border: 1px solid var(--border); }
 
 .title {
   flex: 1;

@@ -242,10 +242,8 @@ export default function ListPage() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <button className={styles.backBtn2} onClick={() => navigate('/')}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M19 12H5M12 5l-7 7 7 7"/>
-            </svg>
+          <button className={styles.logoBtn} onClick={() => navigate('/')} aria-label="Ir al inicio">
+            <img src="/favicon.svg" alt="WoodyCart" className={styles.headerLogo} />
           </button>
           <h1 className={styles.title}>{list.name}</h1>
           <div className={styles.headerActions}>
