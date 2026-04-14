@@ -18,6 +18,18 @@
   overflow-y: auto;
 }
 
+@media (min-width: 720px) {
+  .overlay { align-items: center; }
+  .sheet {
+    border-radius: 20px;
+    padding: 24px 28px 28px;
+    max-width: 520px;
+    max-height: 85vh;
+    animation: fadeIn 0.2s ease-out;
+  }
+  .handle { display: none; }
+}
+
 .handle {
   width: 36px; height: 4px;
   background: var(--border);

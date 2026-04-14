@@ -2,11 +2,22 @@ import { useState, useRef } from 'react'
 import { uploadImage } from '../lib/supabase'
 import styles from './Sheet.module.css'
 
-export default function AddItemSheet({ item, categories, onSave, onClose }) {
+const UNITS = ['unidades', 'litros', 'ml', 'kilos', 'gramos', 'paquetes', 'latas', 'botellas', 'docenas']
+
+function parseQuantity(raw) {
+  if (!raw) return { value: '', unit: '' }
+  const m = raw.match(/^\s*([\d.,]+)\s*(.*)$/)
+  if (!m) return { value: '', unit: raw.trim() }
+  const unit = m[2].trim()
+  return { value: m[1], unit: UNITS.includes(unit) ? unit : '' }
+}
+
+export default function AddItemSheet({ item, onSave, onClose }) {
+  const initial = parseQuantity(item?.quantity)
   const [name, setName] = useState(item?.name || '')
-  const [quantity, setQuantity] = useState(item?.quantity || '')
+  const [qtyValue, setQtyValue] = useState(initial.value)
+  const [unit, setUnit] = useState(initial.unit)
   const [note, setNote] = useState(item?.note || '')
-  const [categoryId, setCategoryId] = useState(item?.category_id || '')
   const [imageUrl, setImageUrl] = useState(item?.image_url || '')
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef()
@@ -28,11 +39,12 @@ export default function AddItemSheet({ item, categories, onSave, onClose }) {
   function handleSubmit(e) {
     e.preventDefault()
     if (!name.trim()) return
+    const quantity = [qtyValue.trim(), unit].filter(Boolean).join(' ')
     onSave({
       name: name.trim(),
-      quantity: quantity.trim(),
+      quantity,
       note: note.trim(),
-      category_id: categoryId || null,
+      category_id: item?.category_id ?? null,
       image_url: imageUrl || null,
     })
   }
@@ -59,22 +71,23 @@ export default function AddItemSheet({ item, categories, onSave, onClose }) {
             <div className={styles.field}>
               <label className={styles.label}>Cantidad</label>
               <input
-                placeholder="Ej: 2 litros"
-                value={quantity}
-                onChange={e => setQuantity(e.target.value)}
-                maxLength={40}
+                inputMode="decimal"
+                placeholder="Ej: 2"
+                value={qtyValue}
+                onChange={e => setQtyValue(e.target.value)}
+                maxLength={10}
               />
             </div>
             <div className={styles.field}>
-              <label className={styles.label}>Categoría</label>
+              <label className={styles.label}>Unidades</label>
               <select
                 className={styles.select}
-                value={categoryId}
-                onChange={e => setCategoryId(e.target.value)}
+                value={unit}
+                onChange={e => setUnit(e.target.value)}
               >
-                <option value="">Sin categoría</option>
-                {categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                <option value="">—</option>
+                {UNITS.map(u => (
+                  <option key={u} value={u}>{u}</option>
                 ))}
               </select>
             </div>

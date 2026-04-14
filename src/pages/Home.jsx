@@ -10,14 +10,29 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState('')
-  const [showArchived, setShowArchived] = useState(false)
   const [menuId, setMenuId] = useState(null)
   const [renaming, setRenaming] = useState(null)
+  const [toast, setToast] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
     load()
   }, [])
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuId) return
+    function closeMenu() { setMenuId(null) }
+    document.addEventListener('click', closeMenu)
+    return () => document.removeEventListener('click', closeMenu)
+  }, [menuId])
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 2500)
+    return () => clearTimeout(t)
+  }, [toast])
 
   async function load() {
     try {
@@ -42,37 +57,49 @@ export default function Home() {
     } catch (e) { console.error(e) }
   }
 
-  async function handleArchive(list) {
-    await updateList(list.id, { archived: !list.archived })
-    setLists(prev => prev.map(l => l.id === list.id ? { ...l, archived: !l.archived } : l))
-    setMenuId(null)
-  }
-
   async function handleDelete(id) {
-    if (!confirm('¿Eliminar esta lista?')) return
-    await deleteList(id)
-    setLists(prev => prev.filter(l => l.id !== id))
+    if (!confirm('¿Eliminar esta lista? Esta acción no se puede deshacer.')) return
     setMenuId(null)
+    setLists(prev => prev.filter(l => l.id !== id))
+    try {
+      await deleteList(id)
+    } catch (e) {
+      console.error('Error al eliminar:', e)
+      load() // reload on error to restore state
+    }
   }
 
   async function handleRename(list, name) {
     if (!name.trim()) return
-    await updateList(list.id, { name: name.trim() })
-    setLists(prev => prev.map(l => l.id === list.id ? { ...l, name: name.trim() } : l))
-    setRenaming(null)
+    try {
+      await updateList(list.id, { name: name.trim() })
+      setLists(prev => prev.map(l => l.id === list.id ? { ...l, name: name.trim() } : l))
+    } catch (e) {
+      console.error('Error al renombrar:', e)
+    } finally {
+      setRenaming(null)
+    }
   }
 
-  const active = lists.filter(l => !l.archived)
-  const archived = lists.filter(l => l.archived)
+  function handleShare(list) {
+    setMenuId(null)
+    const url = `${window.location.origin}/lista/${list.share_id}`
+    navigator.clipboard.writeText(url).then(() => {
+      setToast('Enlace copiado')
+    }).catch(() => {
+      // Fallback for browsers that block clipboard
+      prompt('Copia este enlace:', url)
+    })
+  }
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <div className={styles.logoWrap}>
-              <img src="/favicon.svg" alt="" className={styles.logoIcon} aria-hidden="true" />
-              <h1 className={styles.logo}>WoodyCart</h1>
-            </div>
+            <img src="/favicon.svg" alt="" className={styles.logoIcon} aria-hidden="true" />
+            <h1 className={styles.logo}>WoodyCart</h1>
+          </div>
           <button className={styles.addBtn} onClick={() => setCreating(true)} aria-label="Nueva lista">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M12 5v14M5 12h14"/>
@@ -86,7 +113,7 @@ export default function Home() {
           <div className={styles.loading}><span className={styles.spinner}/></div>
         ) : (
           <>
-            {active.length === 0 && !creating && (
+            {lists.length === 0 && !creating && (
               <div className={styles.empty}>
                 <div className={styles.emptyIcon}>🛒</div>
                 <p className={styles.emptyTitle}>Sin listas todavía</p>
@@ -97,11 +124,11 @@ export default function Home() {
               </div>
             )}
 
-            {active.length > 0 && (
+            {lists.length > 0 && (
               <section>
-                <p className={styles.sectionLabel}>Activas</p>
+                <p className={styles.sectionLabel}>Mis listas</p>
                 <div className={styles.grid}>
-                  {active.map((list, i) => (
+                  {lists.map((list, i) => (
                     <ListCard
                       key={list.id}
                       list={list}
@@ -109,48 +136,15 @@ export default function Home() {
                       menuOpen={menuId === list.id}
                       onOpen={() => navigate(`/lista/${list.share_id}`)}
                       onMenu={(e) => { e.stopPropagation(); setMenuId(menuId === list.id ? null : list.id) }}
-                      onArchive={() => handleArchive(list)}
                       onDelete={() => handleDelete(list.id)}
                       onRename={() => { setRenaming(list); setMenuId(null) }}
+                      onShare={() => handleShare(list)}
                       renaming={renaming?.id === list.id}
                       onRenameSubmit={(name) => handleRename(list, name)}
                       onRenameCancel={() => setRenaming(null)}
                     />
                   ))}
                 </div>
-              </section>
-            )}
-
-            {archived.length > 0 && (
-              <section className={styles.archivedSection}>
-                <button className={styles.archivedToggle} onClick={() => setShowArchived(!showArchived)}>
-                  <span className={styles.sectionLabel}>Archivadas ({archived.length})</span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                    style={{ transform: showArchived ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
-                    <path d="M6 9l6 6 6-6"/>
-                  </svg>
-                </button>
-                {showArchived && (
-                  <div className={styles.grid}>
-                    {archived.map((list, i) => (
-                      <ListCard
-                        key={list.id}
-                        list={list}
-                        index={i}
-                        menuOpen={menuId === list.id}
-                        onOpen={() => navigate(`/lista/${list.share_id}`)}
-                        onMenu={(e) => { e.stopPropagation(); setMenuId(menuId === list.id ? null : list.id) }}
-                        onArchive={() => handleArchive(list)}
-                        onDelete={() => handleDelete(list.id)}
-                        onRename={() => { setRenaming(list); setMenuId(null) }}
-                        renaming={renaming?.id === list.id}
-                        onRenameSubmit={(name) => handleRename(list, name)}
-                        onRenameCancel={() => setRenaming(null)}
-                        archived
-                      />
-                    ))}
-                  </div>
-                )}
               </section>
             )}
           </>
@@ -184,16 +178,20 @@ export default function Home() {
         </div>
       )}
 
-      {/* Close menu on outside click */}
-      {menuId && <div className={styles.menuBackdrop} onClick={() => setMenuId(null)} />}
+      {toast && <div className={styles.toast}>{toast}</div>}
     </div>
   )
 }
 
-function ListCard({ list, index, menuOpen, onOpen, onMenu, onArchive, onDelete, onRename, renaming, onRenameSubmit, onRenameCancel, archived }) {
+function ListCard({ list, index, menuOpen, onOpen, onMenu, onDelete, onRename, onShare, renaming, onRenameSubmit, onRenameCancel }) {
   const [renameVal, setRenameVal] = useState(list.name)
   const emoji = EMOJIS[list.id?.charCodeAt(0) % EMOJIS.length] || '🛒'
   const date = new Date(list.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
+
+  // Sync rename input when switching to rename mode
+  useEffect(() => {
+    if (renaming) setRenameVal(list.name)
+  }, [renaming, list.name])
 
   if (renaming) {
     return (
@@ -217,8 +215,8 @@ function ListCard({ list, index, menuOpen, onOpen, onMenu, onArchive, onDelete, 
 
   return (
     <div
-      className={`${styles.card} ${archived ? styles.cardArchived : ''} fade-in`}
-      style={{ animationDelay: `${index * 0.05}s` }}
+      className={`${styles.card} fade-in`}
+      style={{ animationDelay: `${index * 0.05}s`, zIndex: menuOpen ? 30 : undefined }}
       onClick={onOpen}
     >
       <div className={styles.cardTop}>
@@ -230,10 +228,8 @@ function ListCard({ list, index, menuOpen, onOpen, onMenu, onArchive, onDelete, 
         </button>
         {menuOpen && (
           <div className={styles.menu}>
+            <button onClick={e => { e.stopPropagation(); onShare() }}>🔗 Compartir enlace</button>
             <button onClick={e => { e.stopPropagation(); onRename() }}>✏️ Renombrar</button>
-            <button onClick={e => { e.stopPropagation(); onArchive() }}>
-              {archived ? '📤 Desarchivar' : '📥 Archivar'}
-            </button>
             <button onClick={e => { e.stopPropagation(); onDelete() }} className={styles.menuDelete}>🗑️ Eliminar</button>
           </div>
         )}

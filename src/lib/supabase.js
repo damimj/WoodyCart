@@ -87,7 +87,7 @@ export async function getCategories(listId) {
     .from('categories')
     .select('*')
     .eq('list_id', listId)
-    .order('name')
+    .order('created_at', { ascending: true })
   if (error) throw error
   return data
 }
