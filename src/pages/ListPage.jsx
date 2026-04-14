@@ -35,6 +35,7 @@ export default function ListPage() {
   const [shareToast, setShareToast] = useState(false)
   const [showChecked, setShowChecked] = useState(true)
   const channelRef = useRef(null)
+  const scrollTargetId = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -111,16 +112,37 @@ export default function ListPage() {
     if (editItem) {
       await updateItem(editItem.id, data)
     } else {
-      await addItem(list.id, {
+      const newItem = await addItem(list.id, {
         ...data,
         category_id: activeCategoryId,
         checked: false,
         position: items.length,
       })
+      // Optimistic: add immediately without waiting for realtime
+      setItems(prev => prev.some(i => i.id === newItem.id) ? prev : [...prev, newItem])
+      scrollTargetId.current = newItem.id
     }
     setAddSheet(false)
     setEditItem(null)
   }
+
+  // Scroll to newly added item, clearing the sticky header
+  useEffect(() => {
+    if (!scrollTargetId.current) return
+    const id = scrollTargetId.current
+    requestAnimationFrame(() => {
+      const el = document.querySelector(`[data-item-id="${id}"]`)
+      if (!el) return
+      const headerH = document.querySelector('header')?.offsetHeight ?? 0
+      const rect = el.getBoundingClientRect()
+      const hiddenUnderHeader = rect.top < headerH + 8
+      const belowViewport = rect.bottom > window.innerHeight - 8
+      if (hiddenUnderHeader || belowViewport) {
+        window.scrollTo({ top: window.scrollY + rect.top - headerH - 8, behavior: 'smooth' })
+      }
+      scrollTargetId.current = null
+    })
+  }, [items])
 
   async function handleAddCategory(name, color) {
     await addCategory(list.id, name, color)
@@ -392,13 +414,14 @@ export default function ListPage() {
                     </p>
                   ) : (
                     group.items.map(item => (
-                      <ItemRow
-                        key={item.id}
-                        item={item}
-                        onToggle={() => handleToggle(item)}
-                        onEdit={() => { setEditItem(item); setAddSheet(true) }}
-                        onDelete={() => handleDeleteItem(item.id)}
-                      />
+                      <div key={item.id} data-item-id={item.id}>
+                        <ItemRow
+                          item={item}
+                          onToggle={() => handleToggle(item)}
+                          onEdit={() => { setEditItem(item); setAddSheet(true) }}
+                          onDelete={() => handleDeleteItem(item.id)}
+                        />
+                      </div>
                     ))
                   )}
                 </div>
