@@ -145,6 +145,26 @@
 }
 .catDeleteBtn:hover { background: var(--accent-light); color: var(--accent); }
 
+/* Category pills (in edit sheet) */
+.catPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.catPill {
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.catPillNone { color: var(--ink-muted); border-color: var(--border); }
+.catPillNoneActive { color: white; background: var(--ink); border-color: var(--ink); }
+.catPillColorActive { /* color/bg set via inline style */ }
+
 /* Color picker */
 .colorPicker { display: flex; gap: 10px; flex-wrap: wrap; }
 .colorBtn {

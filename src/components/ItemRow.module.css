@@ -1,4 +1,20 @@
 .wrapper { position: relative; overflow: hidden; }
+.dragging { opacity: 0; }
+
+.dragHandle {
+  flex-shrink: 0;
+  width: 28px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--border);
+  cursor: grab;
+  touch-action: none;
+  transition: color 0.15s;
+}
+.dragHandle:hover { color: var(--ink-muted); }
+.dragHandle:active { cursor: grabbing; }
 
 .row {
   display: flex;

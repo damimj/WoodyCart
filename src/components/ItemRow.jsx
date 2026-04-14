@@ -1,9 +1,15 @@
 import { useState } from 'react'
+import { useDraggable } from '@dnd-kit/core'
 import styles from './ItemRow.module.css'
 
 export default function ItemRow({ item, onToggle, onEdit, onDelete }) {
   const [swiped, setSwiped] = useState(false)
   const [startX, setStartX] = useState(null)
+
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({
+    id: item.id,
+    data: { item },
+  })
 
   function handleTouchStart(e) {
     setStartX(e.touches[0].clientX)
@@ -17,12 +23,35 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={`${styles.wrapper} ${isDragging ? styles.dragging : ''}`}
+      ref={setNodeRef}
+    >
       <div
         className={`${styles.row} ${item.checked ? styles.checked : ''} ${swiped ? styles.swiped : ''}`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Drag handle — sólo este elemento activa el drag */}
+        <button
+          ref={setActivatorNodeRef}
+          {...listeners}
+          {...attributes}
+          className={styles.dragHandle}
+          aria-label="Arrastrar artículo"
+          tabIndex={-1}
+          onClick={e => e.stopPropagation()}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+            <circle cx="4.5" cy="2.5"  r="1.2"/>
+            <circle cx="9.5" cy="2.5"  r="1.2"/>
+            <circle cx="4.5" cy="7"    r="1.2"/>
+            <circle cx="9.5" cy="7"    r="1.2"/>
+            <circle cx="4.5" cy="11.5" r="1.2"/>
+            <circle cx="9.5" cy="11.5" r="1.2"/>
+          </svg>
+        </button>
+
         <button className={styles.checkbox} onClick={onToggle} aria-label={item.checked ? 'Desmarcar' : 'Marcar'}>
           <span className={`${styles.check} ${item.checked ? styles.checkActive : ''}`}>
             {item.checked && (

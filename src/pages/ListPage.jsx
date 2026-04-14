@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase, getList, getItems, getCategories, addItem, updateItem, deleteItem,
   addCategory, deleteCategory, uploadImage, updateList } from '../lib/supabase'
+import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core'
 import ItemRow from '../components/ItemRow'
 import AddItemSheet from '../components/AddItemSheet'
 import CategorySheet from '../components/CategorySheet'
@@ -36,6 +37,12 @@ export default function ListPage() {
   const [showChecked, setShowChecked] = useState(true)
   const channelRef = useRef(null)
   const scrollTargetId = useRef(null)
+  const [draggingItem, setDraggingItem] = useState(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor,   { activationConstraint: { delay: 200, tolerance: 6 } })
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -110,6 +117,8 @@ export default function ListPage() {
 
   async function handleSaveItem(data) {
     if (editItem) {
+      // Optimistic: move item immediately to new category
+      setItems(prev => prev.map(i => i.id === editItem.id ? { ...i, ...data } : i))
       await updateItem(editItem.id, data)
     } else {
       const newItem = await addItem(list.id, {
@@ -218,6 +227,26 @@ export default function ListPage() {
 
   function activateCategory(id) {
     setActiveCategoryId(id)
+  }
+
+  function handleDragStart({ active }) {
+    setDraggingItem(items.find(i => i.id === active.id) ?? null)
+  }
+
+  async function handleDragEnd({ active, over }) {
+    setDraggingItem(null)
+    if (!over) return
+    const item = items.find(i => i.id === active.id)
+    if (!item) return
+    const newCategoryId = over.id === '__none__' ? null : over.id
+    if (item.category_id === newCategoryId) return
+    // Optimistic move
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, category_id: newCategoryId } : i))
+    try {
+      await updateItem(item.id, { category_id: newCategoryId })
+    } catch (e) {
+      console.error('move failed:', e)
+    }
   }
 
   function handleShare() {
@@ -372,45 +401,27 @@ export default function ListPage() {
             <p className={styles.emptyListText}>Elige una categoría para empezar</p>
           </div>
         ) : (
-          <>
+          <DndContext
+            sensors={sensors}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
             {grouped.map(group => {
               const isActive = group.id && group.id === activeCategoryId
               return (
-                <div
-                  key={group.id || 'uncategorized'}
-                  className={`${styles.group} ${isActive ? styles.groupActive : ''}`}
+                <GroupSection
+                  key={group.id ?? '__none__'}
+                  group={group}
+                  isActive={isActive}
+                  isDraggingAny={!!draggingItem}
+                  onActivate={activateCategory}
+                  onDelete={handleDeleteCategory}
                 >
-                  {group.name && (
-                    <div
-                      className={styles.groupHeader}
-                      onClick={() => activateCategory(group.id)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <span className={styles.groupDot} style={{ background: group.color }} />
-                      <span className={styles.groupName}>{group.name}</span>
-                      {isActive && (
-                        <>
-                          <span className={styles.groupActiveBadge}>activa</span>
-                          <button
-                            type="button"
-                            className={styles.groupDeleteBtn}
-                            onClick={(e) => { e.stopPropagation(); handleDeleteCategory(group.id) }}
-                            aria-label={`Borrar categoría ${group.name}`}
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="3 6 5 6 21 6"/>
-                              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                              <path d="M10 11v6M14 11v6"/>
-                              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                            </svg>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
                   {group.items.length === 0 ? (
                     <p className={styles.groupEmpty}>
-                      {isActive ? 'Añade artículos a esta categoría' : 'Sin artículos'}
+                      {isActive
+                        ? 'Añade artículos a esta categoría'
+                        : draggingItem ? 'Suelta aquí' : 'Sin artículos'}
                     </p>
                   ) : (
                     group.items.map(item => (
@@ -424,7 +435,7 @@ export default function ListPage() {
                       </div>
                     ))
                   )}
-                </div>
+                </GroupSection>
               )
             })}
 
@@ -438,7 +449,23 @@ export default function ListPage() {
                 </button>
               </div>
             )}
-          </>
+
+            <DragOverlay dropAnimation={null}>
+              {draggingItem ? (
+                <div className={styles.dragOverlay}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" style={{ color: 'var(--border)', flexShrink: 0 }}>
+                    <circle cx="4.5" cy="2.5"  r="1.2"/>
+                    <circle cx="9.5" cy="2.5"  r="1.2"/>
+                    <circle cx="4.5" cy="7"    r="1.2"/>
+                    <circle cx="9.5" cy="7"    r="1.2"/>
+                    <circle cx="4.5" cy="11.5" r="1.2"/>
+                    <circle cx="9.5" cy="11.5" r="1.2"/>
+                  </svg>
+                  <span className={styles.dragOverlayName}>{draggingItem.name}</span>
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         )}
       </main>
 
@@ -474,6 +501,53 @@ export default function ListPage() {
   )
 }
 
+// Droppable category section
+function GroupSection({ group, isActive, isDraggingAny, onActivate, onDelete, children }) {
+  const droppableId = group.id ?? '__none__'
+  const { setNodeRef, isOver } = useDroppable({ id: droppableId })
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={[
+        styles.group,
+        isActive && styles.groupActive,
+        isOver && isDraggingAny && styles.groupOver,
+      ].filter(Boolean).join(' ')}
+    >
+      {group.name && (
+        <div
+          className={styles.groupHeader}
+          onClick={() => onActivate(group.id)}
+          style={{ cursor: 'pointer' }}
+        >
+          <span className={styles.groupDot} style={{ background: group.color }} />
+          <span className={styles.groupName}>{group.name}</span>
+          {isActive && (
+            <>
+              <span className={styles.groupActiveBadge}>activa</span>
+              <button
+                type="button"
+                className={styles.groupDeleteBtn}
+                onClick={(e) => { e.stopPropagation(); onDelete(group.id) }}
+                aria-label={`Borrar categoría ${group.name}`}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  <path d="M10 11v6M14 11v6"/>
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
+      )}
+      {children}
+    </div>
+  )
+}
+
 function groupByCategory(items, categories, showChecked) {
   const unchecked = items.filter(i => !i.checked)
   const checked = showChecked ? items.filter(i => i.checked) : []
@@ -491,10 +565,16 @@ function groupByCategory(items, categories, showChecked) {
     order.push(c.id)
   })
 
+  // Always include uncategorized when categories exist (needed as a drop target)
+  if (categories.length > 0 && !groups['__none__']) {
+    groups['__none__'] = { id: null, name: 'Sin categoría', color: '#8a7a6a', items: [] }
+    order.push('__none__')
+  }
+
   all.forEach(item => {
     const cid = item.category_id && groups[item.category_id] ? item.category_id : '__none__'
     if (!groups[cid]) {
-      groups[cid] = { id: null, name: '', color: '', items: [] }
+      groups[cid] = { id: null, name: 'Sin categoría', color: '#8a7a6a', items: [] }
       order.push(cid)
     }
     groups[cid].items.push(item)
