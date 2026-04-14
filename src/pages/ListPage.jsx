@@ -548,7 +548,7 @@ function GroupSection({ group, isActive, isDraggingAny, onActivate, onDelete, ch
   )
 }
 
-function groupByCategory(items, categories, showChecked) {
+export function groupByCategory(items, categories, showChecked) {
   const unchecked = items.filter(i => !i.checked)
   const checked = showChecked ? items.filter(i => i.checked) : []
   const all = [...unchecked, ...checked]

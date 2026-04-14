@@ -4,7 +4,7 @@ import styles from './Sheet.module.css'
 
 const UNITS = ['unidades', 'litros', 'ml', 'kilos', 'gramos', 'paquetes', 'latas', 'botellas', 'docenas']
 
-function parseQuantity(raw) {
+export function parseQuantity(raw) {
   if (!raw) return { value: '', unit: '' }
   const m = raw.match(/^\s*([\d.,]+)\s*(.*)$/)
   if (!m) return { value: '', unit: raw.trim() }
