@@ -21,12 +21,12 @@ export async function getList(shareId) {
   return data
 }
 
-export async function createList(name) {
+export async function createList(name, icon = null) {
   const { v4: uuidv4 } = await import('uuid')
   const shareId = uuidv4()
   const { data, error } = await supabase
     .from('lists')
-    .insert({ name, share_id: shareId, archived: false })
+    .insert({ name, share_id: shareId, archived: false, icon: icon || null })
     .select()
     .single()
   if (error) throw error

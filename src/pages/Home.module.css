@@ -107,7 +107,7 @@
 .cardArchived { opacity: 0.6; }
 
 .cardTop { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-.cardEmoji { font-size: 26px; line-height: 1; }
+.cardIcon { color: var(--ink-muted); flex-shrink: 0; }
 
 .menuBtn {
   width: 28px; height: 28px;
@@ -198,6 +198,21 @@
 }
 .modalTitle { font-family: var(--font-display); font-size: 24px; margin-bottom: 18px; }
 .modalInput { font-size: 16px; }
+
+.iconPicker { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.iconPickerBtn {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--ink-muted);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.iconPickerBtn:hover { border-color: var(--accent); color: var(--accent); }
+.iconPickerBtnActive { border-color: var(--accent); background: rgba(200,75,47,0.1); color: var(--accent); }
+
 .modalActions { display: flex; gap: 12px; margin-top: 14px; }
 .cancelBtn {
   flex: 1; padding: 12px;

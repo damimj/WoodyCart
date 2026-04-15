@@ -3,13 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import { getAllLists, createList, updateList, deleteList } from '../lib/supabase'
 import styles from './Home.module.css'
 
-const EMOJIS = ['🛒','🏠','💊','🔧','🌿','🎁','📦','🧹','🐾','✏️']
+const LIST_ICONS = [
+  { id: 'cart',     label: 'Carrito de compras' },
+  { id: 'house',    label: 'Casa' },
+  { id: 'hospital', label: 'Salud' },
+  { id: 'lipstick', label: 'Maquillaje' },
+  { id: 'carrot',   label: 'Verdulería' },
+]
 
 export default function Home() {
   const [lists, setLists] = useState([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState('')
+  const [newIcon, setNewIcon] = useState(null)
   const [menuId, setMenuId] = useState(null)
   const [renaming, setRenaming] = useState(null)
   const [toast, setToast] = useState(null)
@@ -49,9 +56,10 @@ export default function Home() {
     e.preventDefault()
     if (!newName.trim()) return
     try {
-      const list = await createList(newName.trim())
+      const list = await createList(newName.trim(), newIcon)
       setLists(prev => [list, ...prev])
       setNewName('')
+      setNewIcon(null)
       setCreating(false)
       navigate(`/lista/${list.share_id}`)
     } catch (e) { console.error(e) }
@@ -153,7 +161,7 @@ export default function Home() {
 
       {/* New List Modal */}
       {creating && (
-        <div className={styles.overlay} onClick={() => setCreating(false)}>
+        <div className={styles.overlay} onClick={() => { setCreating(false); setNewIcon(null) }}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <h2 className={styles.modalTitle}>Nueva lista</h2>
             <form onSubmit={handleCreate}>
@@ -165,8 +173,33 @@ export default function Home() {
                 className={styles.modalInput}
                 maxLength={60}
               />
+              <div className={styles.iconPicker}>
+                <button
+                  type="button"
+                  className={`${styles.iconPickerBtn} ${newIcon === null ? styles.iconPickerBtnActive : ''}`}
+                  onClick={() => setNewIcon(null)}
+                  title="Sin ícono"
+                  aria-label="Sin ícono"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
+                {LIST_ICONS.map(icon => (
+                  <button
+                    key={icon.id}
+                    type="button"
+                    className={`${styles.iconPickerBtn} ${newIcon === icon.id ? styles.iconPickerBtnActive : ''}`}
+                    onClick={() => setNewIcon(icon.id)}
+                    title={icon.label}
+                    aria-label={icon.label}
+                  >
+                    <ListIcon id={icon.id} size={20} />
+                  </button>
+                ))}
+              </div>
               <div className={styles.modalActions}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setCreating(false)}>
+                <button type="button" className={styles.cancelBtn} onClick={() => { setCreating(false); setNewIcon(null) }}>
                   Cancelar
                 </button>
                 <button type="submit" className={styles.createBtn} disabled={!newName.trim()}>
@@ -185,7 +218,6 @@ export default function Home() {
 
 function ListCard({ list, index, menuOpen, onOpen, onMenu, onDelete, onRename, onShare, renaming, onRenameSubmit, onRenameCancel }) {
   const [renameVal, setRenameVal] = useState(list.name)
-  const emoji = EMOJIS[list.id?.charCodeAt(0) % EMOJIS.length] || '🛒'
   const date = new Date(list.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
 
   // Sync rename input when switching to rename mode
@@ -220,7 +252,7 @@ function ListCard({ list, index, menuOpen, onOpen, onMenu, onDelete, onRename, o
       onClick={onOpen}
     >
       <div className={styles.cardTop}>
-        <span className={styles.cardEmoji}>{emoji}</span>
+        {list.icon && <ListIcon id={list.icon} size={28} className={styles.cardIcon} />}
         <button className={styles.menuBtn} onClick={onMenu} aria-label="Opciones">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
@@ -238,4 +270,31 @@ function ListCard({ list, index, menuOpen, onOpen, onMenu, onDelete, onRename, o
       <p className={styles.cardDate}>{date}</p>
     </div>
   )
+}
+
+function ListIcon({ id, size = 24, className }) {
+  const p = {
+    width: size, height: size,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: '2',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    className,
+  }
+  switch (id) {
+    case 'cart':
+      return <svg {...p}><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.67L23 6H6"/></svg>
+    case 'house':
+      return <svg {...p}><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    case 'hospital':
+      return <svg {...p}><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+    case 'lipstick':
+      return <svg {...p}><path d="M12 2l2.5 4h-5L12 2z"/><rect x="9.5" y="6" width="5" height="9" rx="0.5"/><rect x="8" y="15" width="8" height="7" rx="1"/></svg>
+    case 'carrot':
+      return <svg {...p}><path d="M2.27 21.7s9.87-3.5 12.73-6.36a4.5 4.5 0 00-6.36-6.37C5.77 11.84 2.27 21.7 2.27 21.7z"/><path d="M8.64 14l-2.05-2.04M15.34 15l-2.46-2.46"/><path d="M22 9s-1.33-2-3.5-2C16.86 7 15 9 15 9s1.33 2 3.5 2S22 9 22 9z"/><path d="M15 2s-2 1.33-2 3.5S15 9 15 9s2-1.33 2-3.5S15 2 15 2z"/></svg>
+    default:
+      return null
+  }
 }
