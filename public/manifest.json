@@ -1,0 +1,22 @@
+{
+  "name": "WoodyCart",
+  "short_name": "WoodyCart",
+  "description": "Tu lista de compra compartida en tiempo real",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fdf6ec",
+  "theme_color": "#fdf6ec",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon_new.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
