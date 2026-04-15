@@ -281,6 +281,57 @@
 .fab:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,75,47,0.45); }
 .fab:active { transform: scale(0.97); }
 
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+.confirmDialog {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.confirmMessage {
+  color: var(--ink);
+  font-size: 15px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.confirmActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.confirmCancelBtn {
+  padding: 10px 18px;
+  border-radius: 100px;
+  font-size: 14px;
+  border: 1.5px solid var(--border);
+  color: var(--ink-muted);
+  background: transparent;
+  transition: background 0.15s;
+}
+.confirmCancelBtn:hover { background: var(--cream-dark); }
+.confirmClearBtn {
+  padding: 10px 18px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--accent);
+  color: white;
+  border: none;
+  transition: opacity 0.15s;
+}
+.confirmClearBtn:hover { opacity: 0.85; }
+
 .toast {
   position: fixed;
   bottom: 100px;

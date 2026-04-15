@@ -5,7 +5,6 @@ import { supabase, getList, getItems, getCategories, addItem, updateItem, delete
 import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core'
 import ItemRow from '../components/ItemRow'
 import AddItemSheet from '../components/AddItemSheet'
-import CategorySheet from '../components/CategorySheet'
 import styles from './ListPage.module.css'
 
 const CATEGORY_COLORS = ['#c84b2f','#3a7d5a','#3a6b9e','#7a4f9e','#e8b84b','#d47a3a']
@@ -28,7 +27,7 @@ export default function ListPage() {
   const [notFound, setNotFound] = useState(false)
   const [addSheet, setAddSheet] = useState(false)
   const [editItem, setEditItem] = useState(null)
-  const [catSheet, setCatSheet] = useState(false)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [activeCategoryId, setActiveCategoryId] = useState(null)
   const [creatingCat, setCreatingCat] = useState(false)
   const [newCatName, setNewCatName] = useState('')
@@ -298,10 +297,10 @@ export default function ListPage() {
           </button>
           <h1 className={styles.title}>{list.name}</h1>
           <div className={styles.headerActions}>
-            <button className={styles.iconBtn} onClick={() => setCatSheet(true)} title="Categorías">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            <button className={styles.iconBtn} onClick={() => setShowClearConfirm(true)} title="Limpiar lista">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/>
+                <path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1 1 2.23 1.52 3.98 1.52 2.23 0 3.98-1.63 3.98-3.5 0-1.67-1.42-3.06-2.96-3.06z"/>
               </svg>
             </button>
             <button className={styles.iconBtn} onClick={handleShare} title="Compartir">
@@ -485,14 +484,24 @@ export default function ListPage() {
           onClose={() => { setAddSheet(false); setEditItem(null) }}
         />
       )}
-      {catSheet && (
-        <CategorySheet
-          categories={categories}
-          colors={CATEGORY_COLORS}
-          onAdd={handleAddCategory}
-          onDelete={handleDeleteCategory}
-          onClose={() => setCatSheet(false)}
-        />
+      {/* Confirm clear dialog */}
+      {showClearConfirm && (
+        <div className={styles.confirmOverlay} onClick={() => setShowClearConfirm(false)}>
+          <div className={styles.confirmDialog} onClick={e => e.stopPropagation()}>
+            <p className={styles.confirmMessage}>¿Estás seguro que querés desleccionar todos los ítems?</p>
+            <div className={styles.confirmActions}>
+              <button className={styles.confirmCancelBtn} onClick={() => setShowClearConfirm(false)}>
+                Cancelar
+              </button>
+              <button
+                className={styles.confirmClearBtn}
+                onClick={() => { handleUncheckAll(); setShowClearConfirm(false) }}
+              >
+                Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Share toast */}
