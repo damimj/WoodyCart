@@ -106,16 +106,17 @@
 .card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
 .cardArchived { opacity: 0.6; }
 
-.cardTop { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-.cardIcon { color: var(--ink-muted); flex-shrink: 0; }
+.cardTop { margin-bottom: 10px; min-height: 28px; }
+.cardIcon { color: var(--ink-muted); }
 
 .menuBtn {
+  position: absolute;
+  top: 12px; right: 12px;
   width: 28px; height: 28px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   color: var(--ink-muted);
   transition: background 0.15s;
-  flex-shrink: 0;
 }
 .menuBtn:hover { background: var(--cream); }
 
