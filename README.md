@@ -2,7 +2,7 @@
 
 > Lista de compras compartida, en tiempo real, sin login.
 
-![WoodyCart Logo](./public/logo.svg)
+![WoodyCart Logo](./public/logo_new.png)
 
 Creá una lista, compartí el link y cualquier persona puede ver y editar en tiempo real — sin cuenta, sin registro.
 
@@ -88,7 +88,7 @@ Editá `.env.local`:
 
 ```env
 VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_SUPABASE_ANON_KEY=xxxxxxxxxxxxxx
 ```
 
 ### 8. Subir a GitHub
