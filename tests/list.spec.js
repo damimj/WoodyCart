@@ -145,7 +145,7 @@ test.describe('Create categories', () => {
     await page.getByPlaceholder(/nombre/i).fill('Carnicería')
     await page.getByPlaceholder(/nombre/i).press('Enter')
 
-    await expect(page.getByText('Carnicería')).toBeVisible()
+    await expect(page.locator('header').getByText('Carnicería')).toBeVisible()
   })
 
   test('creates a category from a default suggestion pill', async ({ page }) => {
