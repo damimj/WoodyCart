@@ -38,7 +38,7 @@ describe('AddItemSheet', () => {
 
   test('submit button shows "Añadir" for new item', () => {
     renderNew()
-    expect(screen.getByRole('button', { name: /añadir/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^añadir$/i })).toBeInTheDocument()
   })
 
   test('submit button shows "Guardar" when editing', () => {
@@ -50,7 +50,7 @@ describe('AddItemSheet', () => {
 
   test('submit button is disabled when name is empty', () => {
     renderNew()
-    expect(screen.getByRole('button', { name: /añadir/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /^añadir$/i })).toBeDisabled()
   })
 
   test('submit button is enabled when name has text', () => {
@@ -58,13 +58,13 @@ describe('AddItemSheet', () => {
     fireEvent.change(screen.getByPlaceholderText(/leche entera/i), {
       target: { value: 'Pan' },
     })
-    expect(screen.getByRole('button', { name: /añadir/i })).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /^añadir$/i })).not.toBeDisabled()
   })
 
   test('does not call onSave if name is empty when form is submitted', () => {
     const onSave = vi.fn()
     renderNew({ onSave })
-    fireEvent.submit(screen.getByRole('button', { name: /añadir/i }).closest('form'))
+    fireEvent.submit(screen.getByRole('button', { name: /^añadir$/i }).closest('form'))
     expect(onSave).not.toHaveBeenCalled()
   })
 
@@ -104,7 +104,7 @@ describe('AddItemSheet', () => {
     fireEvent.change(screen.getByPlaceholderText(/leche entera/i), {
       target: { value: '  Pan  ' },
     })
-    fireEvent.click(screen.getByRole('button', { name: /añadir/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^añadir$/i }))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
       name: 'Pan',
       image_url: null,
@@ -117,7 +117,7 @@ describe('AddItemSheet', () => {
     fireEvent.change(screen.getByPlaceholderText(/leche entera/i), { target: { value: 'Leche' } })
     fireEvent.change(screen.getByPlaceholderText(/ej: 2/i), { target: { value: '3' } })
     fireEvent.change(screen.getByDisplayValue('—'), { target: { value: 'litros' } })
-    fireEvent.click(screen.getByRole('button', { name: /añadir/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^añadir$/i }))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
       name: 'Leche',
       quantity: '3 litros',
@@ -130,7 +130,7 @@ describe('AddItemSheet', () => {
     fireEvent.change(screen.getByPlaceholderText(/leche entera/i), { target: { value: 'Pan' } })
     fireEvent.change(screen.getByPlaceholderText(/ej: 2/i), { target: { value: '2' } })
     // leave unit as '—' (empty)
-    fireEvent.click(screen.getByRole('button', { name: /añadir/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^añadir$/i }))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
       quantity: '2',
     }))
@@ -140,7 +140,7 @@ describe('AddItemSheet', () => {
     const onSave = vi.fn()
     renderNew({ onSave })
     fireEvent.change(screen.getByPlaceholderText(/leche entera/i), { target: { value: 'Pan' } })
-    fireEvent.click(screen.getByRole('button', { name: /añadir/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^añadir$/i }))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
       quantity: '',
     }))
@@ -160,7 +160,7 @@ describe('AddItemSheet', () => {
     const onSave = vi.fn()
     renderNew({ onSave })
     fireEvent.change(screen.getByPlaceholderText(/leche entera/i), { target: { value: 'Pan' } })
-    fireEvent.click(screen.getByRole('button', { name: /añadir/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^añadir$/i }))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
       category_id: null,
     }))

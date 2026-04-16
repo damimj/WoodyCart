@@ -110,59 +110,60 @@ describe('ItemRow', () => {
 
   test('right-to-left swipe (>60px) reveals swipe action buttons', () => {
     const { container } = render(<ItemRow item={baseItem} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-    const row = container.querySelector('.row')
+    // The row div is the first child of the wrapper (root element)
+    const row = container.firstChild.firstChild
     fireEvent.touchStart(row, { touches: [{ clientX: 300 }] })
     fireEvent.touchEnd(row, { changedTouches: [{ clientX: 200 }] }) // dx = 100 > 60
-    expect(container.querySelector('.swipeActions')).toBeInTheDocument()
+    expect(container.querySelector('[class*="swipeActions"]')).toBeInTheDocument()
   })
 
   test('small swipe (<60px) does not trigger swipe state', () => {
     const { container } = render(<ItemRow item={baseItem} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-    const row = container.querySelector('.row')
+    const row = container.firstChild.firstChild
     fireEvent.touchStart(row, { touches: [{ clientX: 300 }] })
     fireEvent.touchEnd(row, { changedTouches: [{ clientX: 260 }] }) // dx = 40 < 60
-    expect(container.querySelector('.swipeActions')).not.toBeInTheDocument()
+    expect(container.querySelector('[class*="swipeActions"]')).not.toBeInTheDocument()
   })
 
   test('swipe edit button calls onEdit and hides swipe actions', () => {
     const onEdit = vi.fn()
     const { container } = render(<ItemRow item={baseItem} onToggle={vi.fn()} onEdit={onEdit} onDelete={vi.fn()} />)
-    const row = container.querySelector('.row')
+    const row = container.firstChild.firstChild
     fireEvent.touchStart(row, { touches: [{ clientX: 300 }] })
     fireEvent.touchEnd(row, { changedTouches: [{ clientX: 200 }] })
-    fireEvent.click(container.querySelector('.editAction'))
+    fireEvent.click(container.querySelector('[class*="editAction"]'))
     expect(onEdit).toHaveBeenCalledTimes(1)
-    expect(container.querySelector('.swipeActions')).not.toBeInTheDocument()
+    expect(container.querySelector('[class*="swipeActions"]')).not.toBeInTheDocument()
   })
 
   test('swipe delete button calls onDelete and hides swipe actions', () => {
     const onDelete = vi.fn()
     const { container } = render(<ItemRow item={baseItem} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={onDelete} />)
-    const row = container.querySelector('.row')
+    const row = container.firstChild.firstChild
     fireEvent.touchStart(row, { touches: [{ clientX: 300 }] })
     fireEvent.touchEnd(row, { changedTouches: [{ clientX: 200 }] })
-    fireEvent.click(container.querySelector('.deleteAction'))
+    fireEvent.click(container.querySelector('[class*="deleteAction"]'))
     expect(onDelete).toHaveBeenCalledTimes(1)
-    expect(container.querySelector('.swipeActions')).not.toBeInTheDocument()
+    expect(container.querySelector('[class*="swipeActions"]')).not.toBeInTheDocument()
   })
 
   test('left-to-right swipe (>20px) resets swipe state', () => {
     const { container } = render(<ItemRow item={baseItem} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-    const row = container.querySelector('.row')
+    const row = container.firstChild.firstChild
     // Reveal swipe actions
     fireEvent.touchStart(row, { touches: [{ clientX: 300 }] })
     fireEvent.touchEnd(row, { changedTouches: [{ clientX: 200 }] })
-    expect(container.querySelector('.swipeActions')).toBeInTheDocument()
+    expect(container.querySelector('[class*="swipeActions"]')).toBeInTheDocument()
     // Swipe back
     fireEvent.touchStart(row, { touches: [{ clientX: 100 }] })
     fireEvent.touchEnd(row, { changedTouches: [{ clientX: 130 }] }) // dx = -30 < -20
-    expect(container.querySelector('.swipeActions')).not.toBeInTheDocument()
+    expect(container.querySelector('[class*="swipeActions"]')).not.toBeInTheDocument()
   })
 
   test('touchStart with no prior state is safe', () => {
     // startX is null; touchEnd before touchStart should not throw
     const { container } = render(<ItemRow item={baseItem} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-    const row = container.querySelector('.row')
+    const row = container.firstChild.firstChild
     // Touch end without touch start — startX is null, handler returns early
     expect(() => {
       fireEvent.touchEnd(row, { changedTouches: [{ clientX: 200 }] })

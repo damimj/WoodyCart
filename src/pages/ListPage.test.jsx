@@ -168,8 +168,9 @@ describe('ListPage', () => {
   test('confirm dialog is not visible initially', async () => {
     setup()
     await screen.findByText('Mi lista')
-    expect(screen.queryByText(/desseleccionar/i)).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /limpiar/i })).not.toBeInTheDocument()
+    expect(screen.queryByText(/desleccionar todos/i)).not.toBeInTheDocument()
+    // Confirm dialog's "Limpiar" button is absent (broom trigger button is present but that's expected)
+    expect(screen.queryByRole('button', { name: 'Limpiar', exact: true })).not.toBeInTheDocument()
   })
 
   test('opens confirm dialog when broom button is clicked', async () => {
