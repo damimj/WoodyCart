@@ -88,7 +88,7 @@ Editá `.env.local`:
 
 ```env
 VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=xxxxxxxxxxxxxx
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 ```
 
 ### 8. Subir a GitHub
@@ -150,6 +150,7 @@ npm run test:e2e:debug
 ## 📁 Estructura
 
 ```
+
 woodycart/
 ├── public/
 │   ├── logo.svg                 # Logo WoodyCart
