@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllLists, createList, updateList, deleteList } from '../lib/supabase'
+import { getShareUrl } from '../lib/helpers'
 import styles from './Home.module.css'
 
 const LIST_ICONS = [
@@ -91,7 +92,7 @@ export default function Home() {
 
   function handleShare(list) {
     setMenuId(null)
-    const url = `${window.location.origin}/lista/${list.share_id}`
+    const url = getShareUrl(list.share_id)
     navigator.clipboard.writeText(url).then(() => {
       setToast('Enlace copiado')
     }).catch(() => {
