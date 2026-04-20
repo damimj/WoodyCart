@@ -149,8 +149,7 @@ npm run test:e2e:debug
 
 ## 📁 Estructura
 
-```
-
+```text
 woodycart/
 ├── public/
 │   ├── logo.svg                 # Logo WoodyCart
