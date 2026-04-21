@@ -22,11 +22,6 @@ test.describe('Keyboard shortcuts — Home modal', () => {
   })
 
   test('presionar Escape en el modal de Nueva lista lo cierra', async ({ page }) => {
-    // BUG: Home.jsx no tiene handler de Escape en el overlay del modal de nueva lista.
-    // El modal solo se cierra con click en el backdrop o botón Cancelar.
-    // Cuando se implemente el handler, este test debe pasar y quitarse test.fail().
-    test.fail()
-
     await mockSupabase(page, { lists: [] })
     await page.goto('/')
     await expect(page.getByText(/sin listas/i)).toBeVisible()
@@ -36,16 +31,10 @@ test.describe('Keyboard shortcuts — Home modal', () => {
 
     await page.keyboard.press('Escape')
 
-    // Expected: modal closes. Actual: no handler → modal sigue abierto.
     await expect(page.getByPlaceholder(/supermercado semanal/i)).not.toBeVisible({ timeout: 2000 })
   })
 
   test('cerrar el modal y reabrirlo muestra el input vacío', async ({ page }) => {
-    // BUG: Home.jsx no resetea `newName` al cerrar con Cancelar (solo resetea `newIcon`).
-    // Al reabrir, el input muestra el texto previo en vez de estar vacío.
-    // Cuando se corrija (setNewName('') en el handler de cierre), quitar test.fail().
-    test.fail()
-
     await mockSupabase(page, { lists: [] })
     await page.goto('/')
     await expect(page.getByText(/sin listas/i)).toBeVisible()
@@ -57,7 +46,6 @@ test.describe('Keyboard shortcuts — Home modal', () => {
     // Reabrir
     await page.getByRole('button', { name: /nueva lista/i }).click()
 
-    // Expected: input vacío. Actual: contiene el texto anterior.
     await expect(page.getByPlaceholder(/supermercado semanal/i)).toHaveValue('')
   })
 

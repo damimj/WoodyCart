@@ -15,6 +15,7 @@ const LIST_ICONS = [
 export default function Home() {
   const [lists, setLists] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState('')
   const [newIcon, setNewIcon] = useState(null)
@@ -42,12 +43,30 @@ export default function Home() {
     return () => clearTimeout(t)
   }, [toast])
 
+  // Close new-list modal on Escape
+  useEffect(() => {
+    if (!creating) return
+    function handleEsc(e) {
+      if (e.key === 'Escape') closeModal()
+    }
+    document.addEventListener('keydown', handleEsc)
+    return () => document.removeEventListener('keydown', handleEsc)
+  }, [creating])
+
+  function closeModal() {
+    setCreating(false)
+    setNewIcon(null)
+    setNewName('')
+  }
+
   async function load() {
+    setLoadError(false)
     try {
       const data = await getAllLists()
       setLists(data || [])
     } catch (e) {
       console.error(e)
+      setLoadError(true)
     } finally {
       setLoading(false)
     }
@@ -63,7 +82,10 @@ export default function Home() {
       setNewIcon(null)
       setCreating(false)
       navigate(`/lista/${list.share_id}`)
-    } catch (e) { console.error(e) }
+    } catch (e) {
+      console.error(e)
+      setToast('Error al crear la lista. Intentá de nuevo.')
+    }
   }
 
   async function handleDelete(id) {
@@ -120,6 +142,11 @@ export default function Home() {
       <main className={styles.main}>
         {loading ? (
           <div className={styles.loading}><span className={styles.spinner}/></div>
+        ) : loadError ? (
+          <div className={styles.empty}>
+            <p className={styles.emptyTitle}>No se pudo cargar las listas</p>
+            <button className={styles.emptyBtn} onClick={load}>Reintentar</button>
+          </div>
         ) : (
           <>
             {lists.length === 0 && !creating && (
@@ -162,7 +189,7 @@ export default function Home() {
 
       {/* New List Modal */}
       {creating && (
-        <div className={styles.overlay} onClick={() => { setCreating(false); setNewIcon(null) }}>
+        <div className={styles.overlay} onClick={closeModal}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <h2 className={styles.modalTitle}>Nueva lista</h2>
             <form onSubmit={handleCreate}>
@@ -200,7 +227,7 @@ export default function Home() {
                 ))}
               </div>
               <div className={styles.modalActions}>
-                <button type="button" className={styles.cancelBtn} onClick={() => { setCreating(false); setNewIcon(null) }}>
+                <button type="button" className={styles.cancelBtn} onClick={closeModal}>
                   Cancelar
                 </button>
                 <button type="submit" className={styles.createBtn} disabled={!newName.trim()}>

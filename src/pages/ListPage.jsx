@@ -115,20 +115,22 @@ export default function ListPage() {
   }
 
   async function handleSaveItem(data) {
-    if (editItem) {
-      // Optimistic: move item immediately to new category
-      setItems(prev => prev.map(i => i.id === editItem.id ? { ...i, ...data } : i))
-      await updateItem(editItem.id, data)
-    } else {
-      const newItem = await addItem(list.id, {
-        ...data,
-        category_id: activeCategoryId,
-        checked: false,
-        position: items.length,
-      })
-      // Optimistic: add immediately without waiting for realtime
-      setItems(prev => prev.some(i => i.id === newItem.id) ? prev : [...prev, newItem])
-      scrollTargetId.current = newItem.id
+    try {
+      if (editItem) {
+        setItems(prev => prev.map(i => i.id === editItem.id ? { ...i, ...data } : i))
+        await updateItem(editItem.id, data)
+      } else {
+        const newItem = await addItem(list.id, {
+          ...data,
+          category_id: activeCategoryId,
+          checked: false,
+          position: items.length,
+        })
+        setItems(prev => prev.some(i => i.id === newItem.id) ? prev : [...prev, newItem])
+        scrollTargetId.current = newItem.id
+      }
+    } catch (e) {
+      console.error(e)
     }
     setAddSheet(false)
     setEditItem(null)
