@@ -75,19 +75,67 @@ export const getClipboardText = (page) =>
   page.evaluate(() => window.__clipboardText)
 
 // ── Supabase REST mock ────────────────────────────────────────────────────────
+
+/** @private */
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms))
+}
+
+/**
+ * Convenience wrapper to make error config explicit at the call site.
+ * @param {object} errors
+ */
+export const withErrors = (errors) => errors
+
 /**
  * Sets up route interceptors for /rest/v1/lists, /rest/v1/items, /rest/v1/categories.
  * Also aborts the Supabase realtime WebSocket to prevent noisy console errors.
  *
  * @param {import('@playwright/test').Page} page
  * @param {{ lists?: object[], items?: object[], categories?: object[] }} initial
+ * @param {{
+ *   failPOST?:   { lists?: number|'timeout', items?: number|'timeout', categories?: number|'timeout' },
+ *   failPATCH?:  { lists?: number|'timeout', items?: number|'timeout', categories?: number|'timeout' },
+ *   failDELETE?: { lists?: number|'timeout', items?: number|'timeout', categories?: number|'timeout' },
+ *   failGET?:    { lists?: number|'timeout', items?: number|'timeout', categories?: number|'timeout' },
+ *   delay?:      number,
+ * }} [errors]
  * @returns {object} mutable db — inspect or modify in tests
  */
-export async function mockSupabase(page, { lists = [], items = [], categories = [] } = {}) {
+export async function mockSupabase(
+  page,
+  { lists = [], items = [], categories = [] } = {},
+  {
+    failPOST   = {},
+    failPATCH  = {},
+    failDELETE = {},
+    failGET    = {},
+    delay      = 0,
+  } = {}
+) {
   const db = {
     lists:      structuredClone(lists),
     items:      structuredClone(items),
     categories: structuredClone(categories),
+  }
+
+  // Map HTTP method → fail-flag object
+  const failMap = { GET: failGET, POST: failPOST, PATCH: failPATCH, DELETE: failDELETE }
+
+  /**
+   * Checks whether the request should fail.
+   * Returns true if the route was fulfilled (failed), false to continue normally.
+   */
+  async function tryFail(route, method, resource) {
+    if (delay > 0) await sleep(delay)
+    const flag = (failMap[method] ?? {})[resource]
+    if (!flag) return false
+    if (flag === 'timeout') {
+      await route.abort('timedout')
+      return true
+    }
+    await route.fulfill({ json: { error: 'simulated' }, status: flag })
+    return true
   }
 
   // Abort realtime WebSocket — tests rely on optimistic UI updates instead
@@ -97,6 +145,8 @@ export async function mockSupabase(page, { lists = [], items = [], categories = 
   await page.route('**/rest/v1/lists**', async (route) => {
     const method = route.request().method()
     const url    = route.request().url()
+
+    if (await tryFail(route, method, 'lists')) return
 
     if (method === 'GET') {
       const shareMatch = url.match(/share_id=eq\.([^&]+)/)
@@ -143,6 +193,8 @@ export async function mockSupabase(page, { lists = [], items = [], categories = 
     const method = route.request().method()
     const url    = route.request().url()
 
+    if (await tryFail(route, method, 'items')) return
+
     if (method === 'GET') {
       const listMatch = url.match(/list_id=eq\.([^&]+)/)
       const result = listMatch
@@ -187,6 +239,8 @@ export async function mockSupabase(page, { lists = [], items = [], categories = 
     const method = route.request().method()
     const url    = route.request().url()
 
+    if (await tryFail(route, method, 'categories')) return
+
     if (method === 'GET') {
       const listMatch = url.match(/list_id=eq\.([^&]+)/)
       const result = listMatch
@@ -216,3 +270,21 @@ export async function mockSupabase(page, { lists = [], items = [], categories = 
 
   return db
 }
+
+// ── mockNativeShare ───────────────────────────────────────────────────────────
+/**
+ * Stubs navigator.share so the app uses it instead of falling back to clipboard.
+ * Call getShareData(page) after triggering a share to inspect the shared payload.
+ */
+export async function mockNativeShare(page) {
+  await page.addInitScript(() => {
+    window.__shareData = null
+    Object.defineProperty(navigator, 'share', {
+      value: async (data) => { window.__shareData = data },
+      writable: true,
+      configurable: true,
+    })
+  })
+}
+
+export const getShareData = (page) => page.evaluate(() => window.__shareData)
