@@ -9,6 +9,15 @@ if (!supabaseUrl || !supabasePublishableKey) {
 
 export const supabase = createClient(supabaseUrl, supabasePublishableKey)
 
+// Returns a Supabase client that includes x-share-id in every request.
+// PostgREST RLS policies read this header via get_share_id_header() to
+// authorize mutations — callers must know the list's share_id.
+function scopedClient(shareId) {
+  return createClient(supabaseUrl, supabasePublishableKey, {
+    global: { headers: { 'x-share-id': shareId } },
+  })
+}
+
 // ── Lists ──────────────────────────────────────────────────────────────────
 
 export async function getList(shareId) {
@@ -33,13 +42,13 @@ export async function createList(name, icon = null) {
   return data
 }
 
-export async function updateList(id, updates) {
-  const { error } = await supabase.from('lists').update(updates).eq('id', id)
+export async function updateList(id, updates, shareId) {
+  const { error } = await scopedClient(shareId).from('lists').update(updates).eq('id', id)
   if (error) throw error
 }
 
-export async function deleteList(id) {
-  const { error } = await supabase.from('lists').delete().eq('id', id)
+export async function deleteList(id, shareId) {
+  const { error } = await scopedClient(shareId).from('lists').delete().eq('id', id)
   if (error) throw error
 }
 
@@ -64,8 +73,8 @@ export async function getItems(listId) {
   return data
 }
 
-export async function addItem(listId, item) {
-  const { data, error } = await supabase
+export async function addItem(listId, item, shareId) {
+  const { data, error } = await scopedClient(shareId)
     .from('items')
     .insert({ list_id: listId, ...item })
     .select()
@@ -74,13 +83,13 @@ export async function addItem(listId, item) {
   return data
 }
 
-export async function updateItem(id, updates) {
-  const { error } = await supabase.from('items').update(updates).eq('id', id)
+export async function updateItem(id, updates, shareId) {
+  const { error } = await scopedClient(shareId).from('items').update(updates).eq('id', id)
   if (error) throw error
 }
 
-export async function deleteItem(id) {
-  const { error } = await supabase.from('items').delete().eq('id', id)
+export async function deleteItem(id, shareId) {
+  const { error } = await scopedClient(shareId).from('items').delete().eq('id', id)
   if (error) throw error
 }
 
@@ -96,8 +105,8 @@ export async function getCategories(listId) {
   return data
 }
 
-export async function addCategory(listId, name, color) {
-  const { data, error } = await supabase
+export async function addCategory(listId, name, color, shareId) {
+  const { data, error } = await scopedClient(shareId)
     .from('categories')
     .insert({ list_id: listId, name, color })
     .select()
@@ -106,8 +115,8 @@ export async function addCategory(listId, name, color) {
   return data
 }
 
-export async function deleteCategory(id) {
-  const { error } = await supabase.from('categories').delete().eq('id', id)
+export async function deleteCategory(id, shareId) {
+  const { error } = await scopedClient(shareId).from('categories').delete().eq('id', id)
   if (error) throw error
 }
 

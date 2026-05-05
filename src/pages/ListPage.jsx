@@ -102,13 +102,13 @@ export default function ListPage() {
   }, [shareId])
 
   async function handleToggle(item) {
-    await updateItem(item.id, { checked: !item.checked })
+    await updateItem(item.id, { checked: !item.checked }, list.share_id)
   }
 
   async function handleDeleteItem(id) {
     setItems(prev => prev.filter(i => i.id !== id))
     try {
-      await deleteItem(id)
+      await deleteItem(id, list.share_id)
     } catch (e) {
       console.error('deleteItem failed:', e)
     }
@@ -118,14 +118,14 @@ export default function ListPage() {
     try {
       if (editItem) {
         setItems(prev => prev.map(i => i.id === editItem.id ? { ...i, ...data } : i))
-        await updateItem(editItem.id, data)
+        await updateItem(editItem.id, data, list.share_id)
       } else {
         const newItem = await addItem(list.id, {
           ...data,
           category_id: activeCategoryId,
           checked: false,
           position: items.length,
-        })
+        }, list.share_id)
         setItems(prev => prev.some(i => i.id === newItem.id) ? prev : [...prev, newItem])
         scrollTargetId.current = newItem.id
       }
@@ -155,7 +155,7 @@ export default function ListPage() {
   }, [items])
 
   async function handleAddCategory(name, color) {
-    await addCategory(list.id, name, color)
+    await addCategory(list.id, name, color, list.share_id)
   }
 
   async function handleDeleteCategory(id) {
@@ -176,8 +176,8 @@ export default function ListPage() {
     })
     if (activeCategoryId === id) setActiveCategoryId(null)
     try {
-      await Promise.all(itemsInCat.map(i => deleteItem(i.id)))
-      await deleteCategory(id)
+      await Promise.all(itemsInCat.map(i => deleteItem(i.id, list.share_id)))
+      await deleteCategory(id, list.share_id)
     } catch (e) {
       console.error('deleteCategory failed:', e)
     }
@@ -199,7 +199,7 @@ export default function ListPage() {
       return
     }
     try {
-      const cat = await addCategory(list.id, trimmed, color)
+      const cat = await addCategory(list.id, trimmed, color, list.share_id)
       setCategories(prev => prev.some(c => c.id === cat.id) ? prev : [...prev, cat])
       setActiveCategoryId(cat.id)
     } catch (e) {
@@ -244,7 +244,7 @@ export default function ListPage() {
     // Optimistic move
     setItems(prev => prev.map(i => i.id === item.id ? { ...i, category_id: newCategoryId } : i))
     try {
-      await updateItem(item.id, { category_id: newCategoryId })
+      await updateItem(item.id, { category_id: newCategoryId }, list.share_id)
     } catch (e) {
       console.error('move failed:', e)
     }
@@ -263,7 +263,7 @@ export default function ListPage() {
 
   async function handleUncheckAll() {
     const checked = items.filter(i => i.checked)
-    await Promise.all(checked.map(i => updateItem(i.id, { checked: false })))
+    await Promise.all(checked.map(i => updateItem(i.id, { checked: false }, list.share_id)))
   }
 
   const grouped = groupByCategory(items, categories, showChecked)

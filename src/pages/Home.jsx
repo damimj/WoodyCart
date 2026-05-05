@@ -91,9 +91,10 @@ export default function Home() {
   async function handleDelete(id) {
     if (!confirm('¿Eliminar esta lista? Esta acción no se puede deshacer.')) return
     setMenuId(null)
+    const list = lists.find(l => l.id === id)
     setLists(prev => prev.filter(l => l.id !== id))
     try {
-      await deleteList(id)
+      await deleteList(id, list.share_id)
     } catch (e) {
       console.error('Error al eliminar:', e)
       load() // reload on error to restore state
@@ -103,7 +104,7 @@ export default function Home() {
   async function handleRename(list, name) {
     if (!name.trim()) return
     try {
-      await updateList(list.id, { name: name.trim() })
+      await updateList(list.id, { name: name.trim() }, list.share_id)
       setLists(prev => prev.map(l => l.id === list.id ? { ...l, name: name.trim() } : l))
     } catch (e) {
       console.error('Error al renombrar:', e)

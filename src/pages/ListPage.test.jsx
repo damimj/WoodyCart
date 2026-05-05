@@ -149,7 +149,7 @@ describe('ListPage', () => {
     // Pan is unchecked → clicking marks it
     fireEvent.click(screen.getAllByRole('button', { name: /marcar/i })[0])
     await waitFor(() => {
-      expect(supabaseLib.updateItem).toHaveBeenCalledWith('i2', { checked: true })
+      expect(supabaseLib.updateItem).toHaveBeenCalledWith('i2', { checked: true }, 'test-share-id')
     })
   })
 
@@ -159,7 +159,7 @@ describe('ListPage', () => {
     await screen.findByText('Leche')
     fireEvent.click(screen.getByRole('button', { name: /borrar/i }))
     await waitFor(() => {
-      expect(supabaseLib.deleteItem).toHaveBeenCalledWith('i1')
+      expect(supabaseLib.deleteItem).toHaveBeenCalledWith('i1', 'test-share-id')
     })
   })
 
@@ -203,7 +203,7 @@ describe('ListPage', () => {
     fireEvent.click(screen.getByTitle('Limpiar lista'))
     fireEvent.click(screen.getByRole('button', { name: 'Limpiar' }))
     await waitFor(() => {
-      expect(supabaseLib.updateItem).toHaveBeenCalledWith('i1', { checked: false })
+      expect(supabaseLib.updateItem).toHaveBeenCalledWith('i1', { checked: false }, 'test-share-id')
     })
     expect(supabaseLib.updateItem).not.toHaveBeenCalledWith('i2', expect.anything())
   })

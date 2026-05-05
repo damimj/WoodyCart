@@ -259,7 +259,7 @@ describe('Home', () => {
     fireEvent.change(input, { target: { value: 'Nuevo nombre' } })
     fireEvent.click(screen.getByRole('button', { name: /guardar/i }))
     await waitFor(() => {
-      expect(supabase.updateList).toHaveBeenCalledWith('1', { name: 'Nuevo nombre' })
+      expect(supabase.updateList).toHaveBeenCalledWith('1', { name: 'Nuevo nombre' }, 'r')
     })
     expect(await screen.findByText('Nuevo nombre')).toBeInTheDocument()
   })
@@ -288,7 +288,7 @@ describe('Home', () => {
     fireEvent.click(screen.getByRole('button', { name: /opciones/i }))
     fireEvent.click(screen.getByText(/eliminar/i))
     await waitFor(() => {
-      expect(supabase.deleteList).toHaveBeenCalledWith('1')
+      expect(supabase.deleteList).toHaveBeenCalledWith('1', 'del')
     })
     expect(screen.queryByText('Para borrar')).not.toBeInTheDocument()
   })
